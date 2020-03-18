@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Widget Playground</title>
+  </head>
+  <body>
+    <div id="not-root"></div>
+
+    <script src="/lib/main.js"></script>
+
+    <script>
+      EmbeddableChat.mount({
+        parentElement: 'body',
+        pureCloudAPIHost: 'api.mypurecloud.com',
+        pureCloudCredentials: {
+          chatBotCredentials: {
+            accountId: 'QTRZ4Phdf7A5Lhmce',
+            shelfDomain: 'shelf.io',
+            intentGroupId: 'pure-cloud-demo',
+            dialogFlowAccessToken: '63c1d4c95d4b4bc29ee177ca930b166b'
+          },
+          chatCredentials: {
+            organizationId: 'bb570674-c29a-4b70-aca1-5660981f9a22',
+            deploymentId: 'be348b1a-8644-47c2-86ec-94ab69fa1a65',
+            memberInfo: {
+              displayName: 'Guest'
+            },
+            routingTarget: {
+              targetType: 'queue',
+              targetAddress: 'Web Chat Queue'
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

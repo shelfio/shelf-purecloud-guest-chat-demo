@@ -1,0 +1,76 @@
+{
+  "name": "shelf-purecloud-guest-chat",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "i18next": "19.1.0",
+    "lodash": "4.17.15",
+    "node-sass": "4.13.0",
+    "react": "16.12.0",
+    "react-chat-widget": "2.1.5",
+    "react-dom": "16.12.0",
+    "react-i18next": "11.3.1",
+    "react-redux": "7.1.3",
+    "react-scripts": "3.3.0",
+    "redux": "4.0.5",
+    "redux-devtools-extension": "2.13.8",
+    "redux-thunk": "2.3.0",
+    "typescript": "3.7.4"
+  },
+  "scripts": {
+    "start": "PORT=5000 react-scripts start",
+    "build": "react-scripts build",
+    "build-widget": "NODE_ENV=production webpack --mode production --config ./webpack.config.js --env.production",
+    "run-widget": "http-server ./",
+    "deploy-widget": "yarn build-widget && aws s3 cp ./lib/main.js s3://shelf-assets/chat-widget/ --acl public-read",
+    "test": "jest",
+    "lint": "eslint ./src --fix --ext .js,.json,.ts,.tsx --quiet",
+    "eject": "react-scripts eject",
+    "coverage": "jest --coverage"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{json,css,scss,md,yml}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "7.7.4",
+    "@babel/plugin-proposal-optional-chaining": "7.7.5",
+    "@babel/plugin-transform-runtime": "7.7.6",
+    "@babel/preset-env": "7.7.7",
+    "@babel/preset-typescript": "7.7.7",
+    "@testing-library/jest-dom": "4.2.4",
+    "@testing-library/react": "9.4.0",
+    "@testing-library/user-event": "8.0.2",
+    "@types/jest": "25.1.1",
+    "@types/node": "13.1.0",
+    "@types/react": "16.9.19",
+    "@types/react-dom": "16.9.5",
+    "cssimportant-loader": "0.4.0",
+    "mini-css-extract-plugin": "0.9.0",
+    "postcss-increase-specificity": "0.6.0",
+    "prettier": "1.19.1",
+    "webpack-cli": "3.3.10"
+  }
+}
