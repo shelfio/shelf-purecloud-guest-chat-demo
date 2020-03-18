@@ -22,7 +22,6 @@
     "build": "react-scripts build",
     "build-widget": "NODE_ENV=production webpack --mode production --config ./webpack.config.js --env.production",
     "run-widget": "http-server ./",
-    "deploy-widget": "yarn build-widget && aws s3 cp ./lib/main.js s3://shelf-assets/chat-widget/ --acl public-read",
     "test": "jest",
     "lint": "eslint ./src --fix --ext .js,.json,.ts,.tsx --quiet",
     "eject": "react-scripts eject",

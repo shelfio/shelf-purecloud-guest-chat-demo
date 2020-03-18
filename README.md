@@ -38,3 +38,19 @@
 - install dependencies
 - `yarn run-widget` or `npm run run-widget`
 - open browser in `http://localhost:8080`
+
+## Make changes in widget
+Check `src` folder with widget code, change and run `yarn build-widget`
+
+## Folder structure 
+
+```
+src                # Exports + components 
+├── actions        # Redux for chat 
+├── api            # API calls for Purecloud, Dialogflow, Shelf
+├── helpers        # Search in library helpers
+├── i18n           # Localization
+├── stores         # Init of redux + reducers
+│   └── reducers
+└── types          # TS types for every component
+```
