@@ -37,7 +37,7 @@
 
 - install dependencies
 - `yarn run-widget` or `npm run run-widget`
-- open browser in `http://localhost:8080`
+- open browser in `http://localhost:8080/widget-test.html`
 
 ## Make changes in widget
 Check `src` folder with widget code, change and run `yarn build-widget`
