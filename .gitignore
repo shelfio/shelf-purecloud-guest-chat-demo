@@ -6,7 +6,7 @@ build/
 .eslintcache
 .idea
 /.idea/workspace.xml
-lib/
+
 
 # misc
 .DS_Store
