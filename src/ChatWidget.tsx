@@ -147,6 +147,7 @@ class ChatWidget extends Component<WidgetProps> {
   render() {
     const {t} = this.props;
     const title = get(this, 'props.pureCloudCredentials.chatBotCredentials.chatTitle', t('title'));
+    const subtitle = get(this, 'props.pureCloudCredentials.chatBotCredentials.chatSubtitle', t('placeholder'));
 
     return (
       <div className="App">
@@ -154,7 +155,7 @@ class ChatWidget extends Component<WidgetProps> {
           handleNewUserMessage={this.handleNewUserMessage}
           showCloseButton
           title={title}
-          subtitle={t('subtitle')}
+          subtitle={subtitle}
           senderPlaceHolder={t('placeholder')}
         />
       </div>
