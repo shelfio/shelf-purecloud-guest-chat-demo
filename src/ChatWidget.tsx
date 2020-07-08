@@ -3,7 +3,7 @@ import {Widget, addResponseMessage} from 'react-chat-widget';
 import {find, get, includes, isEmpty, isEqual, toLower} from 'lodash';
 import {connect} from 'react-redux';
 import {withTranslation} from 'react-i18next';
-import {handleSearchInLibrary} from './helpers';
+import {handleSearchInLibrary, handleSearchInRecommendations} from './helpers';
 import {addMessage, createChatWithAgent, removeChat} from './actions';
 import {createNewGuestChat, getMemberInfo, sendMessageToAgent, textRequestDialogFlow} from './api';
 import {WidgetProps} from './types';
@@ -107,17 +107,23 @@ class ChatWidget extends Component<WidgetProps> {
   handleNewUserMessage = async (newMessage: string) => {
     const {t, pureCloudCredentials} = this.props;
     const chat = get(this, 'props.chatData');
-    const dialogFlowAccessToken = get(pureCloudCredentials, 'chatBotCredentials.dialogFlowAccessToken') ||
+    const dialogFlowAccessToken =
+      get(pureCloudCredentials, 'chatBotCredentials.dialogFlowAccessToken') ||
       process.env.REACT_APP_DIALOGFLOW_ACCESS_TOKEN;
+    const useRecommendations = get(
+      pureCloudCredentials,
+      'chatBotCredentials.useRecommendations',
+      false
+    );
 
     this.props.addMessage(newMessage);
     if (!chat) {
-      if (includes(newMessage, t('agent'))) {
+      if (includes(newMessage.toLowerCase(), t('agent'))) {
         return this.startChatWithAgent(newMessage);
       }
     }
 
-    if (dialogFlowAccessToken && !chat) {
+    if (dialogFlowAccessToken && !chat && !useRecommendations) {
       const dialogFlow = await textRequestDialogFlow(newMessage, dialogFlowAccessToken);
       const fulfillment = get(dialogFlow, 'result.fulfillment');
       const resultMessage = get(fulfillment, 'speech');
@@ -138,6 +144,14 @@ class ChatWidget extends Component<WidgetProps> {
         addResponseMessage(resultMessage);
       }
     }
+    if (useRecommendations) {
+      return handleSearchInRecommendations({
+        message: newMessage,
+        addMessage: this.props.addMessage,
+        pureCloudCredentials: this.props.pureCloudCredentials,
+        articleResponse: t('articleResponse')
+      });
+    }
 
     if (chat && chat.id) {
       await sendMessageToAgent({host: this.props.pureCloudAPIHost, chat, newMessage});
@@ -147,7 +161,11 @@ class ChatWidget extends Component<WidgetProps> {
   render() {
     const {t} = this.props;
     const title = get(this, 'props.pureCloudCredentials.chatBotCredentials.chatTitle', t('title'));
-    const subtitle = get(this, 'props.pureCloudCredentials.chatBotCredentials.chatSubtitle', t('placeholder'));
+    const subtitle = get(
+      this,
+      'props.pureCloudCredentials.chatBotCredentials.chatSubtitle',
+      t('placeholder')
+    );
 
     return (
       <div className="App">

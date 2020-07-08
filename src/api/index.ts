@@ -54,6 +54,31 @@ export const searchInLibrary = (
   });
 };
 
+export const searchInRecommendations = (
+  text: string,
+  pureCloudCredentials?: PureCloudCredentials
+) => {
+  const domain =
+    pureCloudCredentials?.chatBotCredentials?.shelfDomain ||
+    process.env.REACT_APP_SHELF_DOMAIN ||
+    'gsstaging.net';
+
+  const accountId = pureCloudCredentials?.chatBotCredentials?.accountId || 'harvard';
+  const libraryId = pureCloudCredentials?.chatBotCredentials?.libraryId || 'purecloud';
+  const url = `https://api.${domain}/recommendations/gems/recommendations_self_service`;
+
+  return fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({
+      account_id: accountId,
+      library_ids: [libraryId],
+      text
+    })
+  }).then(resp => {
+    return resp.json();
+  });
+};
+
 export const sendMessageToAgent = ({host, chat, newMessage}) => {
   const url = `https://${host || 'api.mypurecloud.de'}/api/v2/webchat/guest/conversations/${
     chat.id

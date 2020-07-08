@@ -14,6 +14,8 @@ export interface PureCloudCredentials {
     intentGroupId: string;
     chatTitle?: string;
     dialogFlowAccessToken?: string;
+    libraryId?: string;
+    useRecommendations?: boolean;
   };
   chatCredentials: {
     organizationId: string;
