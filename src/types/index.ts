@@ -41,5 +41,4 @@ export interface WidgetProps {
   lang: string;
   i18n: any;
   t: any;
-
 }

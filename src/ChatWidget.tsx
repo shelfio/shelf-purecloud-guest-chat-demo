@@ -1,40 +1,56 @@
-import React, {Component} from 'react';
-import {Widget, addResponseMessage} from 'react-chat-widget';
-import {find, get, includes, isEmpty, isEqual, toLower} from 'lodash';
-import {connect} from 'react-redux';
-import {withTranslation} from 'react-i18next';
-import {handleSearchInLibrary, handleSearchInRecommendations} from './helpers';
-import {addMessage, createChatWithAgent, removeChat} from './actions';
-import {createNewGuestChat, getMemberInfo, sendMessageToAgent, textRequestDialogFlow} from './api';
-import {WidgetProps} from './types';
-import 'react-chat-widget/lib/styles.css';
-import './ChatWidget.scss';
+import React, { Component } from "react";
+import { Widget, addResponseMessage } from "react-chat-widget";
+import { find, get, includes, isEmpty, isEqual, toLower } from "lodash";
+import { connect } from "react-redux";
+import { withTranslation } from "react-i18next";
+import {
+  handleSearchInLibrary,
+  handleSearchInRecommendations,
+} from "./helpers";
+import { addMessage, createChatWithAgent, removeChat } from "./actions";
+import {
+  createNewGuestChat,
+  getMemberInfo,
+  sendMessageToAgent,
+  textRequestDialogFlow,
+} from "./api";
+import { WidgetProps } from "./types";
+import "react-chat-widget/lib/styles.css";
+import "./ChatWidget.scss";
 
 class ChatWidget extends Component<WidgetProps> {
   static defaultProps = {
-    lang: 'en'
+    lang: "en",
   };
   state = {
-    changedLang: false
+    changedLang: false,
   };
   componentDidMount() {
-    const {lang, i18n} = this.props;
+    const { lang, i18n } = this.props;
 
     if (!this.state.changedLang) {
-      this.setState({changedLang: true}, () => {
-        i18n.changeLanguage(lang || 'en').then(t => {
-          addResponseMessage(t('welcome'));
+      this.setState({ changedLang: true }, () => {
+        i18n.changeLanguage(lang || "en").then((t) => {
+          addResponseMessage(t("welcome"));
         });
       });
     }
   }
 
   startChatWithAgent = async (lastMessage: string) => {
-    const {pureCloudCredentials, pureCloudAPIHost, chatHistory, t} = this.props;
+    const {
+      pureCloudCredentials,
+      pureCloudAPIHost,
+      chatHistory,
+      t,
+    } = this.props;
     const fullHistory = [...chatHistory, lastMessage];
 
     try {
-      const chat = await createNewGuestChat(pureCloudCredentials, pureCloudAPIHost);
+      const chat = await createNewGuestChat(
+        pureCloudCredentials,
+        pureCloudAPIHost
+      );
       this.props.createChatWithAgent(chat);
       if (!chat) {
         return;
@@ -42,31 +58,37 @@ class ChatWidget extends Component<WidgetProps> {
 
       const socket = new WebSocket(chat.eventStreamUri);
 
-      socket.addEventListener('open', async () => {
-        addResponseMessage(t('connect'));
+      socket.addEventListener("open", async () => {
+        addResponseMessage(t("connect"));
         if (!isEmpty(fullHistory)) {
           for (const message of fullHistory) {
             await sendMessageToAgent({
               host: pureCloudAPIHost,
               chat,
-              newMessage: message
+              newMessage: message,
             });
           }
         }
       });
-      socket.addEventListener('message', async event => {
+      socket.addEventListener("message", async (event) => {
         const message = JSON.parse(event.data);
         const outsideMessage = !isEqual(
-          get(message, 'eventBody.sender.id'),
-          get(chat, 'member.id')
+          get(message, "eventBody.sender.id"),
+          get(chat, "member.id")
         );
-        const agentLeave = isEqual(get(message, 'eventBody.bodyType'), 'member-leave');
-        const agentJoin = isEqual(get(message, 'eventBody.bodyType'), 'member-join');
+        const agentLeave = isEqual(
+          get(message, "eventBody.bodyType"),
+          "member-leave"
+        );
+        const agentJoin = isEqual(
+          get(message, "eventBody.bodyType"),
+          "member-join"
+        );
 
         // Chat message
         if (message.metadata) {
           switch (message.metadata.type) {
-            case 'message': {
+            case "message": {
               if (message.eventBody.body && outsideMessage) {
                 return addResponseMessage(message.eventBody.body);
               }
@@ -74,23 +96,23 @@ class ChatWidget extends Component<WidgetProps> {
               if (agentLeave && !outsideMessage) {
                 removeChat();
 
-                return addResponseMessage(t('endChatMessage'));
+                return addResponseMessage(t("endChatMessage"));
               }
 
               if (agentJoin && outsideMessage) {
                 const memberInfo = await getMemberInfo(
                   pureCloudAPIHost,
                   chat,
-                  get(message, 'eventBody.sender.id')
+                  get(message, "eventBody.sender.id")
                 );
 
-                if (isEqual(toLower(memberInfo.role), 'agent')) {
-                  return addResponseMessage(t('agentJoin'));
+                if (isEqual(toLower(memberInfo.role), "agent")) {
+                  return addResponseMessage(t("agentJoin"));
                 }
               }
               break;
             }
-            case 'member-change': {
+            case "member-change": {
               break;
             }
             default: {
@@ -100,42 +122,45 @@ class ChatWidget extends Component<WidgetProps> {
         }
       });
     } catch (e) {
-      console.debug('error', e);
+      console.debug("error", e);
     }
   };
 
   handleNewUserMessage = async (newMessage: string) => {
-    const {t, pureCloudCredentials} = this.props;
-    const chat = get(this, 'props.chatData');
+    const { t, pureCloudCredentials } = this.props;
+    const chat = get(this, "props.chatData");
     const dialogFlowAccessToken =
-      get(pureCloudCredentials, 'chatBotCredentials.dialogFlowAccessToken') ||
+      get(pureCloudCredentials, "chatBotCredentials.dialogFlowAccessToken") ||
       process.env.REACT_APP_DIALOGFLOW_ACCESS_TOKEN;
     const useRecommendations = get(
       pureCloudCredentials,
-      'chatBotCredentials.useRecommendations',
+      "chatBotCredentials.useRecommendations",
       false
     );
 
     this.props.addMessage(newMessage);
     if (!chat) {
-      if (includes(newMessage.toLowerCase(), t('agent'))) {
+      if (includes(newMessage.toLowerCase(), t("agent"))) {
         return this.startChatWithAgent(newMessage);
       }
     }
 
     if (dialogFlowAccessToken && !chat && !useRecommendations) {
-      const dialogFlow = await textRequestDialogFlow(newMessage, dialogFlowAccessToken);
-      const fulfillment = get(dialogFlow, 'result.fulfillment');
-      const resultMessage = get(fulfillment, 'speech');
-      const messages = get(fulfillment, 'messages');
-      const useApi = get(find(messages, 'payload'), 'payload.api');
+      const dialogFlow = await textRequestDialogFlow(
+        newMessage,
+        dialogFlowAccessToken
+      );
+      const fulfillment = get(dialogFlow, "result.fulfillment");
+      const resultMessage = get(fulfillment, "speech");
+      const messages = get(fulfillment, "messages");
+      const useApi = get(find(messages, "payload"), "payload.api");
 
       if (useApi) {
         return handleSearchInLibrary({
-          intentName: get(dialogFlow, 'result.metadata.intentName'),
+          intentName: get(dialogFlow, "result.metadata.intentName"),
           addMessage: this.props.addMessage,
           pureCloudCredentials: this.props.pureCloudCredentials,
-          articleResponse: t('articleResponse')
+          articleResponse: t("articleResponse"),
         });
       }
 
@@ -144,27 +169,36 @@ class ChatWidget extends Component<WidgetProps> {
         addResponseMessage(resultMessage);
       }
     }
+
     if (useRecommendations) {
       return handleSearchInRecommendations({
         message: newMessage,
         addMessage: this.props.addMessage,
         pureCloudCredentials: this.props.pureCloudCredentials,
-        articleResponse: t('articleResponse')
+        articleResponse: t("articleResponse"),
       });
     }
 
     if (chat && chat.id) {
-      await sendMessageToAgent({host: this.props.pureCloudAPIHost, chat, newMessage});
+      await sendMessageToAgent({
+        host: this.props.pureCloudAPIHost,
+        chat,
+        newMessage,
+      });
     }
   };
 
   render() {
-    const {t} = this.props;
-    const title = get(this, 'props.pureCloudCredentials.chatBotCredentials.chatTitle', t('title'));
+    const { t } = this.props;
+    const title = get(
+      this,
+      "props.pureCloudCredentials.chatBotCredentials.chatTitle",
+      t("title")
+    );
     const subtitle = get(
       this,
-      'props.pureCloudCredentials.chatBotCredentials.chatSubtitle',
-      t('placeholder')
+      "props.pureCloudCredentials.chatBotCredentials.chatSubtitle",
+      t("placeholder")
     );
 
     return (
@@ -174,7 +208,7 @@ class ChatWidget extends Component<WidgetProps> {
           showCloseButton
           title={title}
           subtitle={subtitle}
-          senderPlaceHolder={t('placeholder')}
+          senderPlaceHolder={t("placeholder")}
         />
       </div>
     );
@@ -183,10 +217,10 @@ class ChatWidget extends Component<WidgetProps> {
 
 export default withTranslation()(
   connect(
-    state => ({
+    (state) => ({
       chatData: state.chat.newChatData,
-      chatHistory: state.chat.history
+      chatHistory: state.chat.history,
     }),
-    {createChatWithAgent, addMessage, removeChat}
+    { createChatWithAgent, addMessage, removeChat }
   )(ChatWidget)
 );
