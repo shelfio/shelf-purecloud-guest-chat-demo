@@ -1,17 +1,17 @@
-import React from "react";
-import { I18nextProvider } from "react-i18next";
-import { Provider } from "react-redux";
-import ReactDOM from "react-dom";
-import ChatWidget from "./ChatWidget";
-import { Store } from "./stores/redux-store";
-import { PureCloudCredentials } from "./types";
-import i18n from "./i18n";
+import React from 'react';
+import {I18nextProvider} from 'react-i18next';
+import {Provider} from 'react-redux';
+import ReactDOM from 'react-dom';
+import ChatWidget from './ChatWidget';
+import {Store} from './stores/redux-store';
+import {PureCloudCredentials} from './types';
+import i18n from './i18n';
 
 export default class EmbeddableChat {
   static el;
 
   static mount({
-    parentElement = "",
+    parentElement = '',
     ...props
   }: {
     parentElement: string;
@@ -28,13 +28,13 @@ export default class EmbeddableChat {
 
     function doRender() {
       if (EmbeddableChat.el) {
-        throw new Error("EmbeddableChat is already mounted, unmount first");
+        throw new Error('EmbeddableChat is already mounted, unmount first');
       }
 
-      const el = document.createElement("div");
+      const el = document.createElement('div');
       // IMPORTANT: this className used in Webpack config,
       // styles applied just because of it
-      el.setAttribute("class", "AppHolder");
+      el.setAttribute('class', 'AppHolder');
 
       if (parentElement) {
         document.querySelector(parentElement)!.appendChild(el);
@@ -44,10 +44,10 @@ export default class EmbeddableChat {
       ReactDOM.render(component, el);
       EmbeddableChat.el = el;
     }
-    if (document.readyState === "complete") {
+    if (document.readyState === 'complete') {
       doRender();
     } else {
-      window.addEventListener("load", () => {
+      window.addEventListener('load', () => {
         doRender();
       });
     }
@@ -55,7 +55,7 @@ export default class EmbeddableChat {
 
   static unmount() {
     if (!EmbeddableChat.el) {
-      throw new Error("EmbeddableChat is not mounted, mount first");
+      throw new Error('EmbeddableChat is not mounted, mount first');
     }
     ReactDOM.unmountComponentAtNode(EmbeddableChat.el);
     EmbeddableChat.el.parentNode.removeChild(EmbeddableChat.el);

@@ -2122,6 +2122,11 @@
     eslint-plugin-react "7.20.2"
     eslint-plugin-vue "6.2.2"
 
+"@shelf/prettier-config@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@shelf/prettier-config/-/prettier-config-0.0.7.tgz#b081d07bfc88e06981e8e207490b7189affeb71c"
+  integrity sha512-T931rkdqMq2OWKoocQYxAryLrtqQ7jh642hBo1fDJWNVAWzgenQVpl7smlyXlQr79ti5Nx/vUUfo+4F5Hvnk7Q==
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"

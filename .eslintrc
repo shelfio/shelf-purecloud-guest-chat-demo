@@ -3,7 +3,7 @@
   "extends": ["@shelf/eslint-config/frontend-typescript"],
   "settings": {
     "react": {
-      "version": "16.8.0"
+      "version": "16.12.0"
     }
   }
 }

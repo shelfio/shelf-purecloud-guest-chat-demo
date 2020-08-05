@@ -1,14 +1,14 @@
-import React from "react";
-import { filter, get, isEmpty, join, map, take } from "lodash";
-import { addResponseMessage, renderCustomComponent } from "react-chat-widget";
-import { searchInLibrary, searchInRecommendations } from "../api";
-import { PureCloudCredentials } from "../types";
+import React from 'react';
+import {filter, get, isEmpty, join, map, take} from 'lodash';
+import {addResponseMessage, renderCustomComponent} from 'react-chat-widget';
+import {searchInLibrary, searchInRecommendations} from '../api';
+import {PureCloudCredentials} from '../types';
 
 export const handleSearchInLibrary = async ({
   intentName,
   pureCloudCredentials,
   addMessage,
-  articleResponse,
+  articleResponse
 }: {
   intentName: string;
   pureCloudCredentials?: PureCloudCredentials;
@@ -16,29 +16,29 @@ export const handleSearchInLibrary = async ({
   articleResponse: string;
 }) => {
   const gems = await searchInLibrary(intentName, pureCloudCredentials);
-  const validGems = take(filter(gems, "publicURL"), 3);
+  const validGems = take(filter(gems, 'publicURL'), 3);
 
   if (!isEmpty(validGems)) {
     addMessage(
       `bot reply: 
           ${join(
-            map(validGems, (gem) => `[${gem.title}](${gem.publicURL})`),
-            "\n"
+            map(validGems, gem => `[${gem.title}](${gem.publicURL})`),
+            '\n'
           )}`
     );
     addResponseMessage(articleResponse);
-    map(validGems, (gem) =>
+    map(validGems, gem =>
       renderCustomComponent(() => (
-        <div className={"Widget__gem"} key={gem._id}>
+        <div className={'Widget__gem'} key={gem._id}>
           <a
-            className={"Widget__gem-grid"}
+            className={'Widget__gem-grid'}
             href={gem.publicURL}
-            target={"_blank"}
+            target={'_blank'}
             rel="noopener noreferrer"
           >
-            <div className={"Widget__image"}></div>
-            <div className={"Widget__title"}>{gem.title}</div>
-            <div className={"Widget__description"}>
+            <div className={'Widget__image'}></div>
+            <div className={'Widget__title'}>{gem.title}</div>
+            <div className={'Widget__description'}>
               <span>{gem.description}</span>
             </div>
           </a>
@@ -52,7 +52,7 @@ export const handleSearchInRecommendations = async ({
   message,
   addMessage,
   articleResponse,
-  pureCloudCredentials,
+  pureCloudCredentials
 }: {
   message: string;
   addMessage: (message) => void;
@@ -60,32 +60,32 @@ export const handleSearchInRecommendations = async ({
   articleResponse: string;
 }) => {
   const response = await searchInRecommendations(message, pureCloudCredentials);
-  const gems = get(response, "recommendations");
-  const validGems = take(filter(gems, "publicURL"), 3);
+  const gems = get(response, 'recommendations');
+  const validGems = take(filter(gems, 'publicURL'), 3);
 
-  console.warn({ gems });
+  console.warn({gems});
 
   if (!isEmpty(validGems)) {
     addMessage(
       `bot reply: 
           ${join(
-            map(validGems, (gem) => `[${gem.title}](${gem.publicURL})`),
-            "\n"
+            map(validGems, gem => `[${gem.title}](${gem.publicURL})`),
+            '\n'
           )}`
     );
     addResponseMessage(articleResponse);
-    map(validGems, (gem) =>
+    map(validGems, gem =>
       renderCustomComponent(() => (
-        <div className={"Widget__gem"} key={gem._id}>
+        <div className={'Widget__gem'} key={gem._id}>
           <a
-            className={"Widget__gem-grid"}
+            className={'Widget__gem-grid'}
             href={gem.publicURL}
-            target={"_blank"}
+            target={'_blank'}
             rel="noopener noreferrer"
           >
-            <div className={"Widget__image"}></div>
-            <div className={"Widget__title"}>{gem.title}</div>
-            <div className={"Widget__description"}>
+            <div className={'Widget__image'}></div>
+            <div className={'Widget__title'}>{gem.title}</div>
+            <div className={'Widget__description'}>
               <span>{gem.description}</span>
             </div>
           </a>

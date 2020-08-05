@@ -1,1 +1,1 @@
-declare module "react-chat-widget";
+declare module 'react-chat-widget';
