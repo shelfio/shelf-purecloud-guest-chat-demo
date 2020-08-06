@@ -1,3 +1,5 @@
+import exp from 'constants';
+
 export interface ChatData {
   id: string;
   jwt: string;
@@ -5,6 +7,10 @@ export interface ChatData {
   member: {
     id: string;
   };
+}
+
+export interface AppState {
+  chat: {data: ChatData; history: string[]};
 }
 
 export interface PureCloudCredentials {
@@ -29,15 +35,20 @@ export interface PureCloudCredentials {
 }
 
 export interface WidgetProps {
-  chatData: ChatData;
+  pureCloudCredentials?: PureCloudCredentials;
+  pureCloudEnvironment?: string;
+
+  lang?: string;
+}
+
+export interface WidgetStateProps {
+  chatHistory: string[];
   isConnectedToAgent: boolean;
+  chatData: ChatData;
+}
+
+export interface WidgetDispatchProps {
+  removeChat: () => void;
   createChatWithAgent: (chat: ChatData) => void;
   addMessage: (message: string) => void;
-  pureCloudCredentials?: PureCloudCredentials;
-  pureCloudEnvironment: string;
-  chatHistory: string[];
-  removeChat: () => void;
-  lang: string;
-  i18n: any;
-  t: any;
 }

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Widget, addResponseMessage, renderCustomComponent} from 'react-chat-widget';
 import {filter, forEach, get, includes, isEmpty, isEqual, join, map, take, toLower} from 'lodash';
 import {connect} from 'react-redux';
-import {withTranslation} from 'react-i18next';
+import {WithTranslation, withTranslation} from 'react-i18next';
 import {addMessage, createChatWithAgent, removeChat} from './stores/actions';
 import {
   createNewGuestChat,
@@ -10,14 +10,16 @@ import {
   searchInRecommendations,
   sendMessageToAgent
 } from './api';
-import {WidgetProps} from './types';
+import {AppState, WidgetDispatchProps, WidgetProps, WidgetStateProps} from './types';
 import 'react-chat-widget/lib/styles.css';
 import './ChatWidget.scss';
 
-class ChatWidget extends Component<WidgetProps> {
+type Props = WidgetProps & WidgetStateProps & WidgetDispatchProps & WithTranslation;
+
+class ChatWidget extends Component<Props> {
   static defaultProps = {
     lang: 'en',
-    pureCloudAPIHost: 'api.mypurecloud.de'
+    pureCloudEnvironment: 'mypurecloud.de'
   };
 
   componentDidMount() {
@@ -206,13 +208,13 @@ class ChatWidget extends Component<WidgetProps> {
   }
 }
 
-export default withTranslation()(
-  connect(
-    ({chat: {data, history}}) => ({
-      isConnectedToAgent: Boolean(data),
-      chatData: data,
-      chatHistory: history
-    }),
-    {createChatWithAgent, addMessage, removeChat}
-  )(ChatWidget)
-);
+const ChatWithTranslation = withTranslation()(ChatWidget);
+
+export default connect<WidgetStateProps, WidgetDispatchProps, WidgetProps>(
+  ({chat: {data, history}}: AppState) => ({
+    isConnectedToAgent: Boolean(data),
+    chatData: data,
+    chatHistory: history
+  }),
+  {createChatWithAgent, addMessage, removeChat}
+)(ChatWithTranslation);

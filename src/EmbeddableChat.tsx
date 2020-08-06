@@ -15,7 +15,7 @@ export default class EmbeddableChat {
     ...props
   }: {
     parentElement: string;
-    pureCloudAPIHost?: string;
+    pureCloudEnvironment?: string;
     pureCloudCredentials?: PureCloudCredentials;
   }) {
     const component = (
