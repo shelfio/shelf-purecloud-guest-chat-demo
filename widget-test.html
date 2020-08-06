@@ -12,13 +12,13 @@
     <script>
       EmbeddableChat.mount({
         parentElement: 'body',
-        pureCloudAPIHost: 'api.mypurecloud.com',
+        pureCloudEnvironment: 'mypurecloud.com',
         pureCloudCredentials: {
           chatBotCredentials: {
             accountId: 'QTRZ4Phdf7A5Lhmce',
             shelfDomain: 'shelf.io',
-            chatTitle: 'Your title',
-            chatSubtitle: 'Your subtitle',
+            useRecommendations: true,
+            allowedSSPLibraryIds: ['f78c9a1e-e7d7-4b55-a8de-9d4ec18daded']
           },
           chatCredentials: {
             organizationId: 'bb570674-c29a-4b70-aca1-5660981f9a22',
