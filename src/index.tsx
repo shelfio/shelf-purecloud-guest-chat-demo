@@ -11,9 +11,7 @@ ReactDOM.render(
   <I18nextProvider i18n={i18n}>
     <Provider store={Store}>
       <ChatWidget
-        // @ts-ignore
-        pureCloudAPIHost={'api.mypurecloud.com'}
-        // @ts-ignore
+        pureCloudEnvironment={'mypurecloud.com'}
         pureCloudCredentials={{
           chatBotCredentials: {
             accountId: 'QTRZ4Phdf7A5Lhmce',

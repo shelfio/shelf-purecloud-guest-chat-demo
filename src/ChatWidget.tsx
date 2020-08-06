@@ -22,6 +22,8 @@ class ChatWidget extends Component<Props> {
     pureCloudEnvironment: 'mypurecloud.de'
   };
 
+  socket: WebSocket;
+
   componentDidMount() {
     const {lang, i18n} = this.props;
 
@@ -30,86 +32,105 @@ class ChatWidget extends Component<Props> {
     });
   }
 
+  componentWillUnmount() {
+    this.closeConnection();
+  }
+
+  handleConnectionOpen = async () => {
+    const {t, chatHistory} = this.props;
+
+    // Message about agent will be connected in a moment
+    addResponseMessage(t('connect'));
+
+    if (!isEmpty(chatHistory)) {
+      forEach(chatHistory, async message => await this.replyToAgent(message));
+    }
+  };
+
+  handleMessageReceived = async event => {
+    const {chatData, t, pureCloudEnvironment} = this.props;
+
+    const message = JSON.parse(event.data);
+
+    const outsideMessage = !isEqual(
+      get(message, 'eventBody.sender.id'),
+      get(chatData, 'member.id')
+    );
+
+    const agentLeave = isEqual(get(message, 'eventBody.bodyType'), 'member-leave');
+    const agentJoin = isEqual(get(message, 'eventBody.bodyType'), 'member-join');
+
+    // Chat message
+    if (message.metadata) {
+      switch (message.metadata.type) {
+        case 'message': {
+          if (message.eventBody.body && outsideMessage) {
+            return addResponseMessage(message.eventBody.body);
+          }
+
+          if (agentLeave && !outsideMessage) {
+            this.props.removeChat();
+
+            return addResponseMessage(t('endChatMessage'));
+          }
+
+          if (agentJoin && outsideMessage) {
+            const memberInfo = await getMemberInfo({
+              agentId: get(message, 'eventBody.sender.id'),
+              chat: chatData,
+              host: pureCloudEnvironment
+            });
+
+            if (isEqual(toLower(memberInfo.role), 'agent')) {
+              return addResponseMessage(t('agentJoin'));
+            }
+          }
+          break;
+        }
+        case 'member-change': {
+          break;
+        }
+        default: {
+          console.debug(`Unknown message type: ${message.metadata.type}`);
+        }
+      }
+    }
+  };
+
+  openConnectionToChat = chat => {
+    this.socket = new WebSocket(chat.eventStreamUri);
+
+    this.socket.addEventListener('open', this.handleConnectionOpen);
+
+    this.socket.addEventListener('message', this.handleMessageReceived);
+  };
+
+  closeConnection = () => {
+    if (this.socket) {
+      this.socket.close();
+    }
+  };
+
   replyToAgent = (message: string) => {
     const {pureCloudEnvironment, chatData} = this.props;
 
     return sendMessageToAgent({
-      host: pureCloudEnvironment,
+      host: pureCloudEnvironment!,
       chatData,
       message
     });
   };
 
   startChatWithAgent = async () => {
-    const {pureCloudCredentials, pureCloudAPIHost, chatHistory, t} = this.props;
-    const fullHistory = [...chatHistory, lastMessage];
+    const {pureCloudCredentials, pureCloudEnvironment} = this.props;
 
     try {
-      const chat = await createNewGuestChat(pureCloudCredentials, pureCloudAPIHost);
+      const chat = await createNewGuestChat(pureCloudCredentials, pureCloudEnvironment);
       this.props.createChatWithAgent(chat);
-      if (!chat) {
-        return;
+
+      if (chat) {
+        this.openConnectionToChat(chat);
       }
-
-      const socket = new WebSocket(chat.eventStreamUri);
-
-      socket.addEventListener('open', async () => {
-        addResponseMessage(t('connect'));
-        if (!isEmpty(fullHistory)) {
-          for (const message of fullHistory) {
-            await sendMessageToAgent({
-              host: pureCloudAPIHost,
-              chat,
-              newMessage: message
-            });
-          }
-        }
-      });
-      socket.addEventListener('message', async event => {
-        const message = JSON.parse(event.data);
-        const outsideMessage = !isEqual(
-          get(message, 'eventBody.sender.id'),
-          get(chat, 'member.id')
-        );
-        const agentLeave = isEqual(get(message, 'eventBody.bodyType'), 'member-leave');
-        const agentJoin = isEqual(get(message, 'eventBody.bodyType'), 'member-join');
-
-        // Chat message
-        if (message.metadata) {
-          switch (message.metadata.type) {
-            case 'message': {
-              if (message.eventBody.body && outsideMessage) {
-                return addResponseMessage(message.eventBody.body);
-              }
-
-              if (agentLeave && !outsideMessage) {
-                removeChat();
-
-                return addResponseMessage(t('endChatMessage'));
-              }
-
-              if (agentJoin && outsideMessage) {
-                const memberInfo = await getMemberInfo(
-                  pureCloudAPIHost,
-                  chat,
-                  get(message, 'eventBody.sender.id')
-                );
-
-                if (isEqual(toLower(memberInfo.role), 'agent')) {
-                  return addResponseMessage(t('agentJoin'));
-                }
-              }
-              break;
-            }
-            case 'member-change': {
-              break;
-            }
-            default: {
-              console.debug(`Unknown message type: ${message.metadata.type}`);
-            }
-          }
-        }
-      });
     } catch (e) {
       console.debug('error', e);
     }

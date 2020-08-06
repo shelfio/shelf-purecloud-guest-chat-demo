@@ -1,5 +1,3 @@
-import exp from 'constants';
-
 export interface ChatData {
   id: string;
   jwt: string;
@@ -18,8 +16,9 @@ export interface PureCloudCredentials {
     accountId: string;
     shelfDomain: string;
     chatTitle?: string;
-    libraryId?: string;
+    chatSubtitle?: string;
     useRecommendations?: boolean;
+    libraryId?: string;
   };
   chatCredentials: {
     organizationId: string;
@@ -35,8 +34,8 @@ export interface PureCloudCredentials {
 }
 
 export interface WidgetProps {
-  pureCloudCredentials?: PureCloudCredentials;
-  pureCloudEnvironment?: string;
+  pureCloudCredentials: PureCloudCredentials;
+  pureCloudEnvironment: string;
 
   lang?: string;
 }

@@ -28,9 +28,7 @@ export const createNewGuestChat = (
       'Content-Type': 'application/json'
     },
     body
-  }).then(resp => {
-    return resp.json();
-  });
+  }).then(resp => resp.json());
 };
 
 export const searchInRecommendations = (
@@ -81,7 +79,7 @@ export const sendMessageToAgent = ({
   });
 };
 
-export const getMemberInfo = (host, chat, agentId) => {
+export const getMemberInfo = ({host, chat, agentId}) => {
   const url = `https://api.${host}/api/v2/webchat/guest/conversations/${chat.id}/members/${agentId}`;
 
   return fetch(url, {
@@ -89,7 +87,5 @@ export const getMemberInfo = (host, chat, agentId) => {
     headers: {
       Authorization: `Bearer ${chat.jwt}`
     }
-  }).then(resp => {
-    return resp.json();
-  });
+  }).then(resp => resp.json());
 };
