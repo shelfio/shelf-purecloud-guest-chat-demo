@@ -47,7 +47,7 @@ Check `src` folder with widget code, change and run `yarn build-widget`
 ```
 src                # Exports + components 
 ├── actions        # Redux for chat 
-├── api            # API calls for Purecloud, Dialogflow, Shelf
+├── api            # API calls to Purecloud, Shelf
 ├── helpers        # Search in library helpers
 ├── i18n           # Localization
 ├── stores         # Init of redux + reducers
