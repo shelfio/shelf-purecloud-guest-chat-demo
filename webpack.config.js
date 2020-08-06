@@ -21,11 +21,10 @@ module.exports = {
       // Options similar to the same options in webpackOptions.output
       // both options are optional
       filename: devMode ? '[name].css' : '[name].[hash].css',
-      chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+      chunkFilename: devMode ? '[id].css' : '[id].[hash].css'
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-      'process.env.REACT_APP_DIALOGFLOW_ACCESS_TOKEN': JSON.stringify(''),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
   ],
   module: {
@@ -57,14 +56,14 @@ module.exports = {
               plugins: [
                 increaseSpecificity({
                   stackableRoot: '.AppHolder',
-                  repeat: 1,
-                }),
+                  repeat: 1
+                })
               ],
-              sourceMap: devMode,
-            },
+              sourceMap: devMode
+            }
           },
-          'sass-loader',
-        ],
+          'sass-loader'
+        ]
       },
       {
         test: /\.(ts|js)x?$/,
@@ -77,7 +76,7 @@ module.exports = {
   },
   resolve: {
     modules: [path.resolve(__dirname, '../../node_modules'), 'node_modules'],
-    extensions: ['*','.ts', '.tsx', '.js', '.json', '.png']
+    extensions: ['*', '.ts', '.tsx', '.js', '.json', '.png']
   },
-  target: "node"
+  target: 'node'
 };

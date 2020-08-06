@@ -15,8 +15,8 @@ export default class EmbeddableChat {
     ...props
   }: {
     parentElement: string;
-    pureCloudAPIHost?: string;
-    pureCloudCredentials?: PureCloudCredentials;
+    pureCloudEnvironment: string;
+    pureCloudCredentials: PureCloudCredentials;
   }) {
     const component = (
       <I18nextProvider i18n={i18n}>
@@ -30,14 +30,14 @@ export default class EmbeddableChat {
       if (EmbeddableChat.el) {
         throw new Error('EmbeddableChat is already mounted, unmount first');
       }
+
       const el = document.createElement('div');
       // IMPORTANT: this className used in Webpack config,
       // styles applied just because of it
       el.setAttribute('class', 'AppHolder');
 
       if (parentElement) {
-        // @ts-ignore
-        document.querySelector(parentElement).appendChild(el);
+        document.querySelector(parentElement)!.appendChild(el);
       } else {
         document.body.appendChild(el);
       }

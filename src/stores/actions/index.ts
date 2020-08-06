@@ -1,9 +1,9 @@
-import * as types from '../actions/types';
-import {NewChatData} from '../types';
+import * as types from './types';
+import {ChatData} from '../../types';
 
-export const createChatWithAgent = (newChatData: NewChatData) => ({
+export const createChatWithAgent = (data: ChatData) => ({
   type: types.ADD_CHAT_TO_STORE,
-  newChatData
+  data
 });
 
 export const addMessage = (historyPiece: string) => ({
