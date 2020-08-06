@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/lodash": "4.14.159",
     "i18next": "19.6.3",
     "lodash": "4.17.19",
     "node-sass": "4.14.1",

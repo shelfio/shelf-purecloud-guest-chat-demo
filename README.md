@@ -13,9 +13,7 @@
     pureCloudCredentials: {
       chatBotCredentials: {
         accountId: 'SHELF_ACCOUNT_ID',
-        shelfDomain: 'shelf.io',
-        intentGroupId: 'pure-cloud-demo', //
-        dialogFlowAccessToken: 'GOGGLE_DIALOG_FLOW_API_KEY'
+        shelfDomain: 'shelf.io'
       },
       chatCredentials: {
         organizationId: 'PURE_CLOUD_ORG_ID',

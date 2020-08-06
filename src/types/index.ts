@@ -1,4 +1,4 @@
-export interface NewChatData {
+export interface ChatData {
   id: string;
   jwt: string;
   eventStreamUri: string;
@@ -11,9 +11,7 @@ export interface PureCloudCredentials {
   chatBotCredentials: {
     accountId: string;
     shelfDomain: string;
-    intentGroupId: string;
     chatTitle?: string;
-    dialogFlowAccessToken?: string;
     libraryId?: string;
     useRecommendations?: boolean;
   };
@@ -31,11 +29,12 @@ export interface PureCloudCredentials {
 }
 
 export interface WidgetProps {
-  chatData: NewChatData;
-  createChatWithAgent: (chat: NewChatData) => void;
+  chatData: ChatData;
+  isConnectedToAgent: boolean;
+  createChatWithAgent: (chat: ChatData) => void;
   addMessage: (message: string) => void;
   pureCloudCredentials?: PureCloudCredentials;
-  pureCloudAPIHost?: string;
+  pureCloudEnvironment: string;
   chatHistory: string[];
   removeChat: () => void;
   lang: string;

@@ -1,35 +1,44 @@
 import React, {Component} from 'react';
-import {Widget, addResponseMessage} from 'react-chat-widget';
-import {find, get, includes, isEmpty, isEqual, toLower} from 'lodash';
+import {Widget, addResponseMessage, renderCustomComponent} from 'react-chat-widget';
+import {filter, forEach, get, includes, isEmpty, isEqual, join, map, take, toLower} from 'lodash';
 import {connect} from 'react-redux';
 import {withTranslation} from 'react-i18next';
-import {handleSearchInLibrary, handleSearchInRecommendations} from './helpers';
-import {addMessage, createChatWithAgent, removeChat} from './actions';
-import {createNewGuestChat, getMemberInfo, sendMessageToAgent, textRequestDialogFlow} from './api';
+import {addMessage, createChatWithAgent, removeChat} from './stores/actions';
+import {
+  createNewGuestChat,
+  getMemberInfo,
+  searchInRecommendations,
+  sendMessageToAgent
+} from './api';
 import {WidgetProps} from './types';
 import 'react-chat-widget/lib/styles.css';
 import './ChatWidget.scss';
 
 class ChatWidget extends Component<WidgetProps> {
   static defaultProps = {
-    lang: 'en'
+    lang: 'en',
+    pureCloudAPIHost: 'api.mypurecloud.de'
   };
-  state = {
-    changedLang: false
-  };
+
   componentDidMount() {
     const {lang, i18n} = this.props;
 
-    if (!this.state.changedLang) {
-      this.setState({changedLang: true}, () => {
-        i18n.changeLanguage(lang || 'en').then(t => {
-          addResponseMessage(t('welcome'));
-        });
-      });
-    }
+    i18n.changeLanguage(lang || 'en').then(t => {
+      addResponseMessage(t('welcome'));
+    });
   }
 
-  startChatWithAgent = async (lastMessage: string) => {
+  replyToAgent = (message: string) => {
+    const {pureCloudEnvironment, chatData} = this.props;
+
+    return sendMessageToAgent({
+      host: pureCloudEnvironment,
+      chatData,
+      message
+    });
+  };
+
+  startChatWithAgent = async () => {
     const {pureCloudCredentials, pureCloudAPIHost, chatHistory, t} = this.props;
     const fullHistory = [...chatHistory, lastMessage];
 
@@ -104,62 +113,73 @@ class ChatWidget extends Component<WidgetProps> {
     }
   };
 
-  handleNewUserMessage = async (newMessage: string) => {
-    const {t, pureCloudCredentials} = this.props;
-    const chat = get(this, 'props.chatData');
-    const dialogFlowAccessToken =
-      get(pureCloudCredentials, 'chatBotCredentials.dialogFlowAccessToken') ||
-      process.env.REACT_APP_DIALOGFLOW_ACCESS_TOKEN;
+  getSSPRecommendationsForMessage = async (message: string) => {
+    const {pureCloudCredentials} = this.props;
+
+    const response = await searchInRecommendations(message, pureCloudCredentials);
+    const {recommendations} = response || {};
+    const sspReccomendations = take(filter(recommendations, 'publicURL'), 3);
+
+    if (!isEmpty(sspReccomendations)) {
+      this.renderSSPRecommendations(sspReccomendations);
+    }
+  };
+
+  renderSSPRecommendations = (recommendations: any[]) => {
+    const botRepliedMessage = `bot reply: 
+          ${join(
+            map(recommendations, gem => `[${gem.title}](${gem.publicURL})`),
+            '\n'
+          )}`;
+
+    this.props.addMessage(botRepliedMessage);
+
+    addResponseMessage(this.props.t('articleResponse'));
+
+    forEach(recommendations, gem =>
+      renderCustomComponent(() => (
+        <div className={'Widget__gem'} key={gem._id}>
+          <a
+            className={'Widget__gem-grid'}
+            href={gem.publicURL}
+            target={'_blank'}
+            rel="noopener noreferrer"
+          >
+            <div className={'Widget__image'}></div>
+            <div className={'Widget__title'}>{gem.title}</div>
+            <div className={'Widget__description'}>
+              <span>{gem.description}</span>
+            </div>
+          </a>
+        </div>
+      ))
+    );
+  };
+
+  handleNewUserMessage = async (message: string) => {
+    const {t, pureCloudCredentials, isConnectedToAgent} = this.props;
+
     const useRecommendations = get(
       pureCloudCredentials,
       'chatBotCredentials.useRecommendations',
       false
     );
 
-    this.props.addMessage(newMessage);
-    if (!chat) {
-      if (includes(newMessage.toLowerCase(), t('agent'))) {
-        return this.startChatWithAgent(newMessage);
-      }
+    this.props.addMessage(message);
+
+    // Chat is connected to PureCloud agent
+    // So only send message directly to agent
+    if (isConnectedToAgent) {
+      return this.replyToAgent(message);
     }
 
-    if (dialogFlowAccessToken && !chat && !useRecommendations) {
-      const dialogFlow = await textRequestDialogFlow(newMessage, dialogFlowAccessToken);
-      const fulfillment = get(dialogFlow, 'result.fulfillment');
-      const resultMessage = get(fulfillment, 'speech');
-      const messages = get(fulfillment, 'messages');
-      const useApi = get(find(messages, 'payload'), 'payload.api');
-
-      if (useApi) {
-        return handleSearchInLibrary({
-          intentName: get(dialogFlow, 'result.metadata.intentName'),
-          addMessage: this.props.addMessage,
-          pureCloudCredentials: this.props.pureCloudCredentials,
-          articleResponse: t('articleResponse')
-        });
-      }
-
-      if (resultMessage) {
-        this.props.addMessage(`bot reply: ${resultMessage}`);
-        addResponseMessage(resultMessage);
-      }
+    // If message contains "agent" -> connect agent
+    if (includes(message.toLowerCase(), t('agent').toLowerCase())) {
+      return this.startChatWithAgent();
     }
 
     if (useRecommendations) {
-      return handleSearchInRecommendations({
-        message: newMessage,
-        addMessage: this.props.addMessage,
-        pureCloudCredentials: this.props.pureCloudCredentials,
-        articleResponse: t('articleResponse')
-      });
-    }
-
-    if (chat && chat.id) {
-      await sendMessageToAgent({
-        host: this.props.pureCloudAPIHost,
-        chat,
-        newMessage
-      });
+      return this.getSSPRecommendationsForMessage(message);
     }
   };
 
@@ -188,9 +208,10 @@ class ChatWidget extends Component<WidgetProps> {
 
 export default withTranslation()(
   connect(
-    state => ({
-      chatData: state.chat.newChatData,
-      chatHistory: state.chat.history
+    ({chat: {data, history}}) => ({
+      isConnectedToAgent: Boolean(data),
+      chatData: data,
+      chatHistory: history
     }),
     {createChatWithAgent, addMessage, removeChat}
   )(ChatWidget)
