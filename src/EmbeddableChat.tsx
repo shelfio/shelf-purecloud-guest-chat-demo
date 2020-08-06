@@ -15,8 +15,8 @@ export default class EmbeddableChat {
     ...props
   }: {
     parentElement: string;
-    pureCloudEnvironment?: string;
-    pureCloudCredentials?: PureCloudCredentials;
+    pureCloudEnvironment: string;
+    pureCloudCredentials: PureCloudCredentials;
   }) {
     const component = (
       <I18nextProvider i18n={i18n}>

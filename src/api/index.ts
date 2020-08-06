@@ -41,14 +41,14 @@ export const searchInRecommendations = (
     'gsstaging.net';
 
   const accountId = pureCloudCredentials?.chatBotCredentials?.accountId || 'harvard';
-  const libraryId = pureCloudCredentials?.chatBotCredentials?.libraryId || 'purecloud';
+  const libraryIds = pureCloudCredentials?.chatBotCredentials?.allowedSSPLibraryIds || [];
   const url = `https://api.${domain}/recommendations/gems/recommendations_self_service`;
 
   return fetch(url, {
     method: 'POST',
     body: JSON.stringify({
       account_id: accountId,
-      library_ids: [libraryId],
+      library_ids: libraryIds,
       text
     })
   }).then(resp => resp.json());

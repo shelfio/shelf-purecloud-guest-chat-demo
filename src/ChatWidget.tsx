@@ -10,7 +10,7 @@ import {
   searchInRecommendations,
   sendMessageToAgent
 } from './api';
-import {AppState, WidgetDispatchProps, WidgetProps, WidgetStateProps} from './types';
+import {AppState, ChatData, WidgetDispatchProps, WidgetProps, WidgetStateProps} from './types';
 import 'react-chat-widget/lib/styles.css';
 import './ChatWidget.scss';
 
@@ -97,12 +97,19 @@ class ChatWidget extends Component<Props> {
     }
   };
 
-  openConnectionToChat = chat => {
+  handleConnectionClosed = () => this.openConnectionToChat(this.props.chatData);
+
+  openConnectionToChat = (chat: ChatData) => {
+    if (!chat) {
+      return;
+    }
     this.socket = new WebSocket(chat.eventStreamUri);
 
     this.socket.addEventListener('open', this.handleConnectionOpen);
 
     this.socket.addEventListener('message', this.handleMessageReceived);
+
+    this.socket.addEventListener('close', this.handleConnectionClosed);
   };
 
   closeConnection = () => {
@@ -185,7 +192,7 @@ class ChatWidget extends Component<Props> {
     const useRecommendations = get(
       pureCloudCredentials,
       'chatBotCredentials.useRecommendations',
-      false
+      true
     );
 
     this.props.addMessage(message);

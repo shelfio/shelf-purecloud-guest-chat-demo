@@ -9,11 +9,13 @@
 <script>
   EmbeddableChat.mount({
     parentElement: 'body', // Mounting selector
-    pureCloudAPIHost: 'api.mypurecloud.com', //API host of purecloud (to connect with an agent)
+    pureCloudAPIHost: 'mypurecloud.com', // PureCloud region (to connect with an agent) SEE: https://help.mypurecloud.com/articles/aws-regions-for-purecloud-deployment/
     pureCloudCredentials: {
       chatBotCredentials: {
         accountId: 'SHELF_ACCOUNT_ID',
-        shelfDomain: 'shelf.io'
+        shelfDomain: 'shelf.io',
+        useRecommendations: true, // By default it recommends up to 3 SSP articles from account 
+        allowedSSPLibraryIds: ['lib-id-1', 'lib-id-2'] // SSP (Self-service portal) libraries in which search for recommendations. Pass [] empty if you want to search across all SSPs  
       },
       chatCredentials: {
         organizationId: 'PURE_CLOUD_ORG_ID',

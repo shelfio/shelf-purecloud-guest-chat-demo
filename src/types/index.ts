@@ -18,7 +18,7 @@ export interface PureCloudCredentials {
     chatTitle?: string;
     chatSubtitle?: string;
     useRecommendations?: boolean;
-    libraryId?: string;
+    allowedSSPLibraryIds?: string[];
   };
   chatCredentials: {
     organizationId: string;
