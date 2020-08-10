@@ -15,7 +15,7 @@
         accountId: 'SHELF_ACCOUNT_ID',
         shelfDomain: 'shelf.io',
         useRecommendations: true, // By default it recommends up to 3 SSP articles from account 
-        allowedSSPLibraryIds: ['lib-id-1', 'lib-id-2'] // SSP (Self-service portal) libraries in which search for recommendations. Pass [] empty if you want to search across all SSPs  
+        allowedSSPLibraryIds: ['lib-id-1', 'lib-id-2'] // SSP (Self-service portal) libraries in which search for recommendations
       },
       chatCredentials: {
         organizationId: 'PURE_CLOUD_ORG_ID',
