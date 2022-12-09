@@ -6,7 +6,7 @@
     "@types/lodash": "4.14.159",
     "@types/react-redux": "7.1.9",
     "i18next": "19.6.3",
-    "lodash": "4.17.19",
+    "lodash": "4.17.21",
     "node-sass": "4.14.1",
     "react": "16.13.1",
     "react-chat-widget": "2.1.5",
